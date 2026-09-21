@@ -399,53 +399,91 @@
     showStep(0);
 
     // --- Submission ----------------------------------------------------
+    // The form is emailed by a Vercel serverless function (api/send-email.js),
+    // which is the only place the Resend API key exists. The browser just
+    // POSTs the answers to that endpoint as JSON -- no keys, no email SDK.
+    var sending = false;
+    var successName = document.getElementById("form-success-name");
+    var successPanel = document.getElementById("form-success");
+    var resetBtn = document.getElementById("form-reset");
+    var submitLabel = submitBtn ? submitBtn.textContent : "";
+
+    var setSending = function (isSending) {
+      sending = isSending;
+      form.setAttribute("aria-busy", String(isSending));
+      if (submitBtn) {
+        submitBtn.disabled = isSending;
+        submitBtn.textContent = isSending ? "Sending..." : submitLabel;
+      }
+      if (backBtn) backBtn.disabled = isSending;
+    };
+
+    var showSuccess = function (name) {
+      if (successName) successName.textContent = name ? ", " + name.split(" ")[0] : "";
+      form.classList.add("is-sent");
+      note.className = "form-note";
+      note.textContent = "";
+      if (successPanel) successPanel.focus();
+    };
+
+    if (resetBtn) {
+      resetBtn.addEventListener("click", function () {
+        form.classList.remove("is-sent");
+        form.reset();
+        if (otherDetail) otherDetail.hidden = true;
+        resetSteps();
+      });
+    }
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      if (!validateStep(currentStep)) return;
+      if (sending || !validateStep(currentStep)) return;
 
       note.className = "form-note";
       note.textContent = "";
 
       var data = new FormData(form);
+      var payload = {
+        services: data.getAll("services"),
+        otherDetail: data.get("service-other-detail") || "",
+        location: data.get("location") || "",
+        estimateDate: data.get("estimate-date") || "",
+        name: data.get("name") || "",
+        email: data.get("email") || "",
+        phone: data.get("phone") || "",
+        bestTime: data.get("best-time") || "",
+        botField: data.get("bot-field") || ""
+      };
 
-      fetch("/", {
+      setSending(true);
+
+      fetch("/api/send-email", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(data).toString(),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       })
         .then(function (res) {
-          if (res.ok) {
-            note.textContent = "Thanks — your message has been sent. We'll be in touch soon!";
-            note.className = "form-note success";
-            form.reset();
-            if (otherDetail) otherDetail.hidden = true;
-            resetSteps();
+          return res.json().catch(function () { return {}; }).then(function (json) {
+            return { ok: res.ok && json.ok === true, status: res.status, error: json.error };
+          });
+        })
+        .then(function (result) {
+          setSending(false);
+          if (result.ok) {
+            showSuccess(payload.name);
+          } else if (result.status === 400 && result.error) {
+            // Validation message from the server (e.g. a bad email address).
+            note.textContent = result.error;
+            note.className = "form-note error";
           } else {
-            throw new Error("Form endpoint unavailable");
+            throw new Error("Send failed");
           }
         })
         .catch(function () {
-          // Fallback for hosts without a form backend (e.g. plain static hosting): open a mail client.
-          var name = encodeURIComponent(data.get("name") || "");
-          var phone = encodeURIComponent(data.get("phone") || "");
-          var services = data.getAll("services").join(", ") || "Not specified";
-          var otherText = data.get("service-other-detail");
-          if (otherText) services += " (" + otherText + ")";
-          var location = data.get("location") || "";
-          var estimateDate = data.get("estimate-date") || "";
-          var bestTime = data.get("best-time") || "";
-          var subject = encodeURIComponent("Free Estimate Request from " + (data.get("name") || "website"));
-          var body =
-            "Name: " + name +
-            "%0APhone: " + phone +
-            "%0AServices: " + encodeURIComponent(services) +
-            "%0ALocation: " + encodeURIComponent(location) +
-            "%0APreferred Date: " + encodeURIComponent(estimateDate) +
-            "%0ABest Time to Call: " + encodeURIComponent(bestTime);
-          window.location.href =
-            "mailto:jerrylcheshire@gmail.com?subject=" + subject + "&body=" + body;
-          note.textContent = "Opening your email client to send this message...";
-          note.className = "form-note success";
+          setSending(false);
+          note.textContent =
+            "Sorry, we couldn\u2019t send your request. Please try again, or call us at (912) 778-4126.";
+          note.className = "form-note error";
         });
     });
   }

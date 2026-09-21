@@ -1261,6 +1261,27 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
 .form-note.success { color: #2f7d3c; }
 .form-note.error { color: #b23b3b; }
 
+/* Confirmation shown in place of the steps once the request has been emailed.
+   Toggled with a class (not the [hidden] attribute) so the display rule below
+   can't be overridden by -- or lose to -- an equal-specificity author rule. */
+.form-success {
+  display: none; flex: 1;
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 4px; padding: 8px 6px;
+}
+.contact-form.is-sent > *:not(.form-success) { display: none; }
+.contact-form.is-sent .form-success { display: flex; }
+.form-success:focus { outline: none; }
+.form-success-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 64px; height: 64px; border-radius: 50%; margin-bottom: 10px;
+  background: #2f7d3c; color: #fff; box-shadow: 0 8px 20px rgba(47,125,60,0.3);
+}
+.form-success-icon svg { width: 32px; height: 32px; }
+.form-success h3 { margin: 0 0 6px; font-size: 1.5rem; }
+.form-success p { margin: 0 0 8px; max-width: 360px; font-size: 0.98rem; }
+.form-success p a { color: var(--color-primary-900); font-weight: 700; }
+
 @media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; } }
 
 /* ===== Footer ===== */

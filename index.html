@@ -639,9 +639,8 @@
         </div>
       </div>
 
-      <form class="contact-form" id="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-        <input type="hidden" name="form-name" value="contact">
-        <p class="hidden-field"><label>Don't fill this out: <input name="bot-field"></label></p>
+      <form class="contact-form" id="contact-form" name="contact">
+        <p class="hidden-field" aria-hidden="true"><label>Don't fill this out: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
 
         <div class="form-progress" aria-hidden="true">
           <span class="form-progress-dot is-active" data-dot="1"></span>
@@ -700,6 +699,13 @@
           <button type="submit" class="btn btn-primary btn-lg form-submit-btn" id="form-submit" hidden>Send Message</button>
         </div>
         <p class="form-note" id="form-note" role="status"></p>
+
+        <div class="form-success" id="form-success" role="status" aria-live="polite" tabindex="-1">
+          <span class="form-success-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <h3>Thank You<span id="form-success-name"></span>!</h3>
+          <p>Your estimate request has been sent. We&rsquo;ll be in touch soon at the time you selected &mdash; or call us any time at <a href="tel:+19127784126">(912) 778-4126</a>.</p>
+          <button type="button" class="btn btn-form-back" id="form-reset">Send Another Request</button>
+        </div>
       </form>
     </div>
   </section>
