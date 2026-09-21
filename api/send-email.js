@@ -11,9 +11,11 @@
  */
 const { Resend } = require("resend");
 
-const FROM = "contact@jerrycheshirelandclearingga.com"; // verified Resend sender
+const FROM = "Jerry Cheshire Land Clearing <contact@jerrycheshirelandclearingga.com>"; // display name + verified Resend sender address
 const TO = "jerrylcheshire@gmail.com";
 const BCC = "hello@uxlabs.pro"; // silent copy of every request
+const SITE_URL = "https://jerrycheshirelandclearingga.com";
+const SITE_LABEL = "jerrycheshirelandclearingga.com";
 
 // Must match the checkbox / radio values in the form in index.html.
 const ALLOWED_SERVICES = [
@@ -134,6 +136,8 @@ function buildEmail(d) {
     `Best time to call: ${d.bestTime}`,
     "",
     "Reply to this email to respond directly to the customer.",
+    "",
+    `Jerry Cheshire Land Clearing Services - ${SITE_URL}`,
   ].join("\n");
 
   const row = (label, valueHtml) =>
@@ -172,6 +176,11 @@ function buildEmail(d) {
       <tr>
         <td style="padding:18px 24px 22px;font-size:13px;color:#46515f;">
           Hit <strong>Reply</strong> to respond directly to ${escapeHtml(d.name)} &mdash; their email address is set as the Reply-To.
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:14px 24px;background:#f6f8fa;border-top:1px solid #e0e3e8;font-size:12px;color:#46515f;text-align:center;">
+          Jerry Cheshire Land Clearing Services &middot; <a href="${SITE_URL}" style="color:#034089;">${SITE_LABEL}</a>
         </td>
       </tr>
     </table>
