@@ -591,7 +591,6 @@ body.preloader-done .hero-actions {
 }
 .check-list { list-style: none; margin: 20px 0 28px; padding: 0; display: grid; gap: 10px; }
 .check-list li { position: relative; padding-left: 28px; font-weight: 600; color: var(--color-primary-900); }
-.about .check-list li { text-shadow: 0px 0px 5px #fff; }
 .check-list li::before {
   content: "✔"; position: absolute; left: 0; top: 0; color: var(--color-accent-600); font-weight: 700;
 }
@@ -1366,4 +1365,195 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
   .testimonial-card:hover { transform: none; }
   .accordion-icon { transition: none; }
   .faq-bubble { animation: none; }
+}
+
+/* =========================================================
+   Service detail pages (e.g. /land-clearing/)
+   Reuses the site's existing tokens, hazard stripe, .service-card,
+   .accordion, .check-list, .trust-strip and footer; only what's
+   specific to these pages lives here.
+   ========================================================= */
+
+/* -- Page hero: photo banner, same overlay recipe as .services-banner -- */
+.page-hero {
+  position: relative; overflow: hidden; color: #fff;
+  background: var(--color-primary-900);
+  padding: 92px 0 80px;
+}
+.page-hero-media {
+  position: absolute; inset: 0; z-index: 0;
+  background: url('../assets/services-banner.jpg') center 60% / cover no-repeat;
+}
+.page-hero::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(92deg, rgb(2 13 28 / 92%) 0%, rgb(1 6 12 / 80%) 30%, rgb(2 10 22 / 45%) 55%, rgba(3, 20, 45, 0.08) 100%);
+}
+.page-hero-inner { position: relative; z-index: 2; }
+.page-hero .eyebrow { color: var(--color-highlight-400); }
+.page-hero h1 { color: #fff; margin-bottom: 0.4em; max-width: 720px; }
+.page-hero h1 .hl { color: var(--color-highlight-400); }
+.page-hero .section-lead { color: #d6e0ee; max-width: 620px; }
+.page-hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
+
+.breadcrumb { margin-bottom: 22px; }
+.breadcrumb ol {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px;
+  font-size: 0.85rem; font-weight: 600; color: #d6e0ee;
+}
+.breadcrumb li + li::before { content: "\203A"; margin-right: 10px; color: var(--color-highlight-400); }
+.breadcrumb a { color: #fff; opacity: 0.85; }
+.breadcrumb a:hover { opacity: 1; text-decoration: underline; }
+.breadcrumb [aria-current="page"] { color: var(--color-highlight-400); }
+
+/* Per-page hero photo: the base .page-hero-media above defaults to the
+   Services banner; a page swaps only the image via a modifier class.
+   The excavator sits on the right of this photo, so on phones (where a
+   narrow slice is shown) bias the crop toward it. */
+.page-hero-media--site-preparation { background-image: url('../assets/site-preparation-banner.jpg'); }
+@media (max-width: 720px) {
+  .page-hero-media--site-preparation { background-position: 72% 60%; }
+}
+
+/* Current page marker inside the Services dropdown/accordion */
+.submenu a[aria-current="page"] { color: var(--color-highlight-400); }
+@media (max-width: 900px) {
+  .submenu a[aria-current="page"] { color: var(--color-accent-600); font-weight: 700; }
+}
+
+/* -- Overview: copy + photo -- */
+.lc-overview { background: var(--color-bg); }
+.lc-overview-grid {
+  display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center;
+}
+.lc-photo {
+  position: relative; margin: 0;
+  border-radius: var(--radius-lg); overflow: hidden;
+  border: 5px solid #fff; box-shadow: var(--shadow-md);
+  aspect-ratio: 4 / 3;
+}
+.lc-photo img { width: 100%; height: 100%; object-fit: cover; }
+.lc-photo-tag {
+  position: absolute; left: 0; bottom: 22px;
+  background: var(--color-accent-500); color: #1c1c1c;
+  font-family: var(--font-head); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.8rem;
+  padding: 7px 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* -- What we clear: icon cards -- */
+.lc-scope { background: var(--color-primary-100); }
+.lc-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  margin-top: 44px;
+}
+.lc-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border-top: 4px solid var(--color-accent-500);
+  padding: 28px 26px 26px;
+  box-shadow: var(--shadow-sm);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.lc-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.lc-card:nth-child(3n+2) { border-top-color: var(--color-primary-900); }
+.lc-card:nth-child(3n+3) { border-top-color: var(--color-highlight-400); }
+.lc-card-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: 50%; margin-bottom: 16px;
+  background: var(--color-primary-100); color: var(--color-primary-900);
+  border: 4px solid var(--color-primary-900);
+}
+.lc-card-icon svg { width: 26px; height: 26px; }
+.lc-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
+.lc-card p { margin: 0; font-size: 0.95rem; }
+
+/* -- How it works: numbered steps -- */
+.lc-process { background: var(--color-bg); }
+.lc-steps {
+  list-style: none; margin: 44px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px;
+  counter-reset: none;
+}
+.lc-steps li { position: relative; text-align: center; }
+.lc-steps li:not(:last-child)::after {
+  /* dashed connector between the number badges */
+  content: ""; position: absolute; top: 27px; left: calc(50% + 40px); right: calc(-50% + 40px);
+  border-top: 2px dashed var(--color-highlight-400);
+}
+.lc-step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 54px; height: 54px; border-radius: 50%; margin-bottom: 16px;
+  background: var(--color-primary-900); color: #fff;
+  font-family: var(--font-head); font-weight: 700; font-size: 1.35rem;
+  box-shadow: 0 0 0 5px var(--color-highlight-400);
+}
+.lc-steps h3 { font-size: 1.05rem; margin-bottom: 8px; }
+.lc-steps p { margin: 0; font-size: 0.95rem; }
+
+/* -- Related services: navy band reusing .service-card -- */
+.lc-related {
+  position: relative; overflow: hidden;
+  background: var(--color-primary-900); color: #fff;
+  padding: 88px 0 80px;
+}
+.lc-related .eyebrow { color: var(--color-highlight-400); }
+.lc-related h2 { color: #fff; }
+.lc-related .section-lead { color: #d6e0ee; }
+.lc-related-inner { position: relative; z-index: 2; }
+.lc-related-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap; margin-bottom: 40px;
+}
+.lc-related-head .section-lead { margin-bottom: 0; }
+.lc-related-grid { grid-template-columns: repeat(4, 1fr); }
+
+/* -- FAQ -- */
+.lc-faq { background: var(--color-surface); }
+.lc-faq-inner { max-width: 820px; }
+.lc-faq .accordion { margin-top: 36px; }
+
+/* -- Closing call to action -- */
+.lc-cta {
+  position: relative; overflow: hidden;
+  background: var(--color-highlight-100);
+  padding: 84px 0 76px; text-align: center;
+}
+.lc-cta::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background-image: radial-gradient(var(--color-border) 1.6px, transparent 1.6px);
+  background-size: 28px 28px;
+}
+.lc-cta-inner { position: relative; z-index: 1; }
+.lc-cta .section-lead { margin-left: auto; margin-right: auto; }
+.lc-cta-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 28px; }
+
+@media (max-width: 1180px) {
+  .lc-related-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 980px) {
+  .lc-grid { grid-template-columns: repeat(2, 1fr); }
+  .lc-steps { grid-template-columns: repeat(2, 1fr); row-gap: 36px; }
+  .lc-steps li::after { display: none; }
+}
+@media (max-width: 900px) {
+  .lc-overview-grid { grid-template-columns: 1fr; gap: 36px; }
+  .lc-photo { order: -1; }
+}
+@media (max-width: 720px) {
+  .page-hero { padding: 64px 0 56px; }
+  /* Text spans the full width on phones, so the side-weighted desktop fade
+     leaves copy over the bright part of the photo -- darken evenly instead. */
+  .page-hero::after { background: linear-gradient(180deg, rgb(2 13 28 / 80%) 0%, rgb(2 13 28 / 68%) 100%); }
+  .lc-related { padding: 60px 0 56px; }
+  .lc-cta { padding: 60px 0 56px; }
+}
+@media (max-width: 620px) {
+  .lc-grid { grid-template-columns: 1fr; }
+  .lc-steps { grid-template-columns: 1fr; }
+  .lc-related-grid { grid-template-columns: 1fr; }
+  .lc-related-head { align-items: flex-start; }
+  .page-hero-actions .btn, .lc-cta-actions .btn { width: 100%; }
 }
