@@ -16,6 +16,8 @@ const TO = "jerrylcheshire@gmail.com";
 const BCC = "hello@uxlabs.pro"; // silent copy of every request
 const SITE_URL = "https://jerrycheshirelandclearingga.com";
 const SITE_LABEL = "jerrycheshirelandclearingga.com";
+const PHONE_DISPLAY = "(912) 778-4126";
+const PHONE_TEL = "+19127784126";
 
 // Must match the checkbox / radio values in the form in index.html.
 const ALLOWED_SERVICES = [
@@ -119,50 +121,39 @@ function validate(body) {
   };
 }
 
-function buildEmail(d) {
-  const servicesText = d.services
-    .map((s) => (s === "Other" && d.otherDetail ? `Other: ${d.otherDetail}` : s))
-    .join(", ");
+// ---- Shared pieces of both emails -----------------------------------------
 
-  const text = [
-    "New Free Estimate Request",
-    "",
+function servicesList(d) {
+  return d.services.map((s) => (s === "Other" && d.otherDetail ? `Other: ${d.otherDetail}` : s));
+}
+
+// Plain-text lines listing every submitted detail (used by both emails).
+function detailLines(d) {
+  return [
     `Name: ${d.name}`,
     `Email: ${d.email}`,
     `Phone: ${d.phone}`,
-    `Services: ${servicesText}`,
+    `Services: ${servicesList(d).join(", ")}`,
     `Location: ${d.location}`,
     `Preferred date to discuss estimate: ${d.estimateDateLabel}`,
     `Best time to call: ${d.bestTime}`,
-    "",
-    "Reply to this email to respond directly to the customer.",
-    "",
-    `Jerry Cheshire Land Clearing Services - ${SITE_URL}`,
-  ].join("\n");
+  ];
+}
 
+// The details table -- identical layout in the business email and the
+// customer's acknowledgement.
+function detailsTableHtml(d) {
   const row = (label, valueHtml) =>
     `<tr>
       <td style="padding:10px 14px;border-bottom:1px solid #e0e3e8;font-weight:700;color:#034089;width:190px;vertical-align:top;">${label}</td>
       <td style="padding:10px 14px;border-bottom:1px solid #e0e3e8;color:#12213c;vertical-align:top;">${valueHtml}</td>
     </tr>`;
 
-  const servicesHtml = d.services
-    .map((s) => `<li style="margin:0 0 4px;">${escapeHtml(s === "Other" && d.otherDetail ? `Other: ${d.otherDetail}` : s)}</li>`)
+  const servicesHtml = servicesList(d)
+    .map((s) => `<li style="margin:0 0 4px;">${escapeHtml(s)}</li>`)
     .join("");
 
-  const html = `<!DOCTYPE html>
-<html>
-  <body style="margin:0;padding:24px;background:#f6f8fa;font-family:Arial,Helvetica,sans-serif;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #e0e3e8;">
-      <tr>
-        <td style="background:#034089;padding:20px 24px;border-bottom:5px solid #fec619;">
-          <div style="color:#ffffff;font-size:20px;font-weight:700;">New Free Estimate Request</div>
-          <div style="color:#d6e0ee;font-size:13px;margin-top:4px;">Submitted from the Jerry Cheshire Land Clearing Services website</div>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding:8px 10px 0;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;line-height:1.5;">
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;line-height:1.5;">
             ${row("Name", escapeHtml(d.name))}
             ${row("Email", `<a href="mailto:${escapeHtml(d.email)}" style="color:#034089;">${escapeHtml(d.email)}</a>`)}
             ${row("Phone", `<a href="tel:${escapeHtml(d.phone.replace(/[^\d+]/g, ""))}" style="color:#034089;">${escapeHtml(d.phone)}</a>`)}
@@ -170,12 +161,34 @@ function buildEmail(d) {
             ${row("Location", escapeHtml(d.location))}
             ${row("Preferred date to discuss estimate", escapeHtml(d.estimateDateLabel))}
             ${row("Best time to call", escapeHtml(d.bestTime))}
-          </table>
+          </table>`;
+}
+
+// Same branded shell for both emails; only the heading, intro and note differ.
+function emailShellHtml({ title, subtitle, introHtml, d, noteHtml }) {
+  return `<!DOCTYPE html>
+<html>
+  <body style="margin:0;padding:24px;background:#f6f8fa;font-family:Arial,Helvetica,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #e0e3e8;">
+      <tr>
+        <td style="background:#034089;padding:20px 24px;border-bottom:5px solid #fec619;">
+          <div style="color:#ffffff;font-size:20px;font-weight:700;">${title}</div>
+          <div style="color:#d6e0ee;font-size:13px;margin-top:4px;">${subtitle}</div>
+        </td>
+      </tr>${introHtml ? `
+      <tr>
+        <td style="padding:20px 24px 6px;font-size:15px;line-height:1.55;color:#12213c;">
+          ${introHtml}
+        </td>
+      </tr>` : ""}
+      <tr>
+        <td style="padding:8px 10px 0;">
+          ${detailsTableHtml(d)}
         </td>
       </tr>
       <tr>
         <td style="padding:18px 24px 22px;font-size:13px;color:#46515f;">
-          Hit <strong>Reply</strong> to respond directly to ${escapeHtml(d.name)} &mdash; their email address is set as the Reply-To.
+          ${noteHtml}
         </td>
       </tr>
       <tr>
@@ -186,8 +199,63 @@ function buildEmail(d) {
     </table>
   </body>
 </html>`;
+}
 
-  return { text, html };
+// ---- Email 1: the lead, sent to the business ------------------------------
+
+function buildBusinessEmail(d) {
+  const text = [
+    "New Free Estimate Request",
+    "",
+    ...detailLines(d),
+    "",
+    "Reply to this email to respond directly to the customer.",
+    "",
+    `Jerry Cheshire Land Clearing Services - ${SITE_URL}`,
+  ].join("\n");
+
+  const html = emailShellHtml({
+    title: "New Free Estimate Request",
+    subtitle: "Submitted from the Jerry Cheshire Land Clearing Services website",
+    introHtml: "",
+    d,
+    noteHtml: `Hit <strong>Reply</strong> to respond directly to ${escapeHtml(d.name)} &mdash; their email address is set as the Reply-To.`,
+  });
+
+  return { subject: `New Free Estimate Request from ${d.name}`, text, html };
+}
+
+// ---- Email 2: acknowledgement sent to the customer ------------------------
+
+function buildCustomerEmail(d) {
+  const firstName = d.name.split(" ")[0];
+
+  const text = [
+    `Hi ${firstName},`,
+    "",
+    "Thank you for contacting Jerry Cheshire Land Clearing Services. We've received your free estimate request and will be in touch soon at the time you selected.",
+    `Need us sooner? Call ${PHONE_DISPLAY}.`,
+    "",
+    "Here's a copy of what you sent us:",
+    "",
+    ...detailLines(d),
+    "",
+    "Reply to this email to reach us directly.",
+    "",
+    `Jerry Cheshire Land Clearing Services - ${SITE_URL}`,
+  ].join("\n");
+
+  const html = emailShellHtml({
+    title: "We&rsquo;ve Received Your Request",
+    subtitle: "Free Estimate Request &mdash; Jerry Cheshire Land Clearing Services",
+    introHtml: `Hi ${escapeHtml(firstName)},<br><br>
+          Thank you for contacting Jerry Cheshire Land Clearing Services. We&rsquo;ve received your free estimate request and will be in touch soon at the time you selected. Need us sooner? Call <a href="tel:${PHONE_TEL}" style="color:#034089;font-weight:700;">${PHONE_DISPLAY}</a>.<br><br>
+          <strong>Here&rsquo;s a copy of what you sent us:</strong>`,
+    d,
+    noteHtml: `Just hit <strong>Reply</strong> to reach us directly &mdash; your message goes straight to Jerry.`,
+  });
+
+  return { subject: "We've received your estimate request - Jerry Cheshire Land Clearing", text, html };
 }
 
 module.exports = async function handler(req, res) {
@@ -225,27 +293,52 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: "Email service is not configured." });
   }
 
-  const { text, html } = buildEmail(d);
+  const resend = new Resend(apiKey);
 
+  // Email 1 -- the lead itself, to the business. This is the one that
+  // matters: if it fails, tell the visitor so they can call instead.
+  const business = buildBusinessEmail(d);
   try {
-    const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
       from: FROM,
       to: TO,
       bcc: BCC,
       replyTo: d.email, // replying goes straight to the customer
-      subject: `New Free Estimate Request from ${d.name}`,
-      html,
-      text,
+      subject: business.subject,
+      html: business.html,
+      text: business.text,
     });
 
     if (error) {
-      console.error("send-email: Resend rejected the message:", error.name || "", error.message || "");
+      console.error("send-email: Resend rejected the business email:", error.name || "", error.message || "");
       return res.status(502).json({ error: "We couldn't send your message right now." });
     }
-    return res.status(200).json({ ok: true });
   } catch (err) {
-    console.error("send-email: unexpected error:", err && err.message ? err.message : err);
+    console.error("send-email: unexpected error sending the business email:", err && err.message ? err.message : err);
     return res.status(502).json({ error: "We couldn't send your message right now." });
   }
+
+  // Email 2 -- acknowledgement to the customer (replies go to the business).
+  // Sent only after the lead is safely delivered, and a failure here is
+  // logged but never shown to the visitor: the business already has the
+  // request, so from the visitor's side their message was sent.
+  const customer = buildCustomerEmail(d);
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: d.email,
+      bcc: BCC,
+      replyTo: TO,
+      subject: customer.subject,
+      html: customer.html,
+      text: customer.text,
+    });
+    if (error) {
+      console.error("send-email: Resend rejected the customer acknowledgement:", error.name || "", error.message || "");
+    }
+  } catch (err) {
+    console.error("send-email: unexpected error sending the customer acknowledgement:", err && err.message ? err.message : err);
+  }
+
+  return res.status(200).json({ ok: true });
 };
