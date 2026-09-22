@@ -1449,6 +1449,24 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
   .page-hero-media--pond-digging-farm-pond { background-position: 78% 42%; }
 }
 
+/* Excavator backfilling a drainage trench with concrete pipe already laid,
+   dump truck and pond visible further left; the excavator/trench action
+   sits in the right half of the frame, so bias toward it on phones same
+   as the other equipment photos. */
+.page-hero-media--drainage-excavation { background-image: url('../assets/drainage-excavation-banner.jpg'); background-position: 62% 48%; }
+@media (max-width: 720px) {
+  .page-hero-media--drainage-excavation { background-position: 80% 50%; }
+}
+
+/* Excavator backfilling a utility trench with pipe already laid, worker in
+   the trench, dump truck and pipe stock visible further left, bright
+   daylight; same composition family as the Drainage Excavation banner, so
+   starting from the same crop values before fine-tuning per breakpoint. */
+.page-hero-media--trenching-services { background-image: url('../assets/trenching-services-banner.jpg'); background-position: 62% 48%; }
+@media (max-width: 720px) {
+  .page-hero-media--trenching-services { background-position: 80% 50%; }
+}
+
 /* Current page marker inside the Services dropdown/accordion */
 .submenu a[aria-current="page"] { color: var(--color-highlight-400); }
 @media (max-width: 900px) {
