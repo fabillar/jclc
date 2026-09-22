@@ -47,10 +47,10 @@
       if (!preloader || preloader.classList.contains("is-hidden")) return;
       preloader.classList.add("is-hidden");
       document.body.classList.remove("is-loading");
-      // Lets the hero's own content (eyebrow, heading, badges, buttons)
-      // drop into place right as the loading screen clears, instead of
-      // just sitting there visible underneath it the whole time -- see
-      // .hero-eyebrow / .hero h1 / .hero-badges / .hero-actions and
+      // Lets the hero's own content (eyebrow, heading, lead paragraph,
+      // buttons) drop into place right as the loading screen clears, instead
+      // of just sitting there visible underneath it the whole time -- see
+      // .hero-eyebrow / .hero h1 / .hero-lead / .hero-actions and
       // body.preloader-done in css/style.css.
       document.body.classList.add("preloader-done");
       window.clearTimeout(preloaderSafetyTimer);
@@ -648,7 +648,7 @@
   var heroVideoWrap = document.querySelector(".hero-video");
   var heroVideoFrame = heroVideoWrap && heroVideoWrap.querySelector("iframe");
   if (heroVideoWrap && heroVideoFrame) {
-    var HERO_VIDEO_RATIO = 16 / 9; // native size of the uploaded clip (1920x1080)
+    var HERO_VIDEO_RATIO = 16 / 9; // source clip's aspect ratio (confirmed 16:9 via Vimeo's oEmbed for the current video)
 
     var fitHeroVideo = function () {
       var w = heroVideoWrap.clientWidth;

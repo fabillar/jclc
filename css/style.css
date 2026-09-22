@@ -432,22 +432,19 @@ body.is-loading { overflow: hidden; }
   .header-cta { display: none; }
 }
 
-/* ===== Hero ===== */
+/* ===== Hero =====
+   Styled and laid out the same as the service-page .page-hero (see that
+   section further down): a compact padding-based banner (not a full-screen
+   block), an areas-stripe accent bar across the very top, a dark-left /
+   transparent-right overlay so left-aligned copy stays readable, and the
+   same eyebrow / h1 / lead-paragraph / actions content pattern. The only
+   real difference is the background media -- this uses the looping Vimeo
+   video (.hero-video) instead of a static photo. */
 .hero {
   position: relative; color: #fff; overflow: hidden;
   background: var(--color-primary-900); /* fallback fill while/if the video hasn't loaded or played (e.g. prefers-reduced-motion) */
-  border-top: 12px solid var(--color-highlight-400);
-  border-bottom: 12px solid var(--color-highlight-400);
-  /* box-sizing: border-box (set globally) means these borders are absorbed
-     into the min-height below rather than adding to it, so header + hero
-     still fit exactly one screen. */
-  min-height: calc(100vh - var(--header-h));
-  min-height: calc(100dvh - var(--header-h)); /* dvh avoids mobile browser-chrome jumpiness */
-  display: flex; align-items: center;
+  padding: 92px 0 80px;
 }
-/* The hero corner badge that used to hang here was removed -- see
-   .hero-eyebrow / .hero h1 / .hero-badges / .hero-actions below for the
-   drop-in-on-load animation that replaced it. */
 .hero-video {
   position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
   /* Full opacity across the whole section -- no fade/mask. */
@@ -463,99 +460,54 @@ body.is-loading { overflow: hidden; }
 }
 .hero::after {
   content: ""; position: absolute; inset: 0; z-index: 1;
-  background: linear-gradient(180deg, rgba(3,20,45,0.12) 0%, rgba(3,20,45,0.72) 100%);
+  background: linear-gradient(92deg, rgb(2 13 28 / 92%) 0%, rgb(1 6 12 / 80%) 30%, rgb(2 10 22 / 45%) 55%, rgba(3, 20, 45, 0.08) 100%);
 }
-.hero-inner {
-  position: relative; z-index: 2;
-  padding: 80px 24px;
-  max-width: 820px;
-  margin: 0 auto;
-  text-align: center;
-}
-/* Rotating sunray effect, anchored on the hero's center but sized to
-   reach every edge of the hero section (clipped by .hero's overflow:hidden). */
-.hero-sunburst {
-  position: absolute; top: 50%; left: 50%;
-  width: 250vmax; height: 250vmax; /* comfortably covers the section from any anchor point */
-  transform: translate(-50%, -50%);
-  /* Negative z-index resolves against .hero-inner (the nearest ancestor that
-     actually establishes a stacking context) -- so this paints behind
-     every bit of hero text, while the whole
-     .hero-inner stack still sits above .hero::after / the video, since that
-     comparison happens one level up. */
-  z-index: -1; pointer-events: none;
-  mix-blend-mode: screen; /* lets the rays glow over the video instead of sitting as a flat sticker */
-}
-.hero-sunburst::before {
-  content: ""; position: absolute; inset: 0;
-  background: repeating-conic-gradient(
-    from 0deg,
-    rgba(254, 198, 25, 0.25) 0deg 10deg,
-    transparent 10deg 24deg
-  );
-  animation: hero-sunburst-spin 45s linear infinite;
-}
-@keyframes hero-sunburst-spin {
-  to { transform: rotate(360deg); }
-}
-.hero-eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; color: var(--color-highlight-100); margin-bottom: 14px; }
-.hero h1 { color: #fff; margin-bottom: 18px; }
-.hero-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px; margin-bottom: 32px; font-weight: 600; font-size: 0.9rem; }
-.hero-badges span { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); padding: 6px 14px; border-radius: 999px; }
-.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+.hero-inner { position: relative; z-index: 2; }
+/* Sits where a .breadcrumb trail would on the service pages -- same slot,
+   same font-size/weight/color/margin-bottom -- but the homepage has
+   nowhere to breadcrumb back to, so it's a plain location tag (pin icon +
+   region name) instead of a link trail. */
+.hero-location { display: flex; align-items: center; gap: 6px; margin-bottom: 22px; font-size: 0.85rem; font-weight: 600; color: #d6e0ee; }
+.hero-location svg { width: 16px; height: 16px; color: var(--color-highlight-400); flex-shrink: 0; }
+.hero-eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; font-size: 0.8rem; color: var(--color-highlight-400); margin-bottom: 14px; }
+.hero h1 { color: #fff; margin-bottom: 0.4em; max-width: 720px; }
+.hero-lead { color: #d6e0ee; max-width: 620px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
 /* Drop the hero's own content into place the instant the loading screen
    clears -- the same slide-down-and-fade motion the corner hero-badge
-   used to do on its own (now removed above), moved onto the actual hero
+   used to do on its own (long since removed), moved onto the actual hero
    copy instead. Each element starts translated above its resting spot
    and fully transparent; a short transition-delay staggered across the
-   four pieces (eyebrow, heading, the pill badges, the buttons) makes
-   them land one after another rather than all at once. js/main.js adds
-   "preloader-done" to <body> once the preloader is gone (see
-   body.preloader-done in js/main.js's hidePreloader()), which is also
-   what used to trigger the old hero-badge drop. No-JS visitors get this
-   content immediately at full opacity instead -- see the <noscript>
+   five pieces (location tag, eyebrow, heading, lead paragraph, buttons)
+   makes them land one after another rather than all at once. js/main.js
+   adds "preloader-done" to <body> once the preloader is gone (see
+   body.preloader-done in js/main.js's hidePreloader()). No-JS visitors get
+   this content immediately at full opacity instead -- see the <noscript>
    rule next to the preloader markup in index.html -- since
    preloader-done is only ever added by script. */
-.hero-eyebrow, .hero h1, .hero-badges, .hero-actions {
+.hero-location, .hero-eyebrow, .hero h1, .hero-lead, .hero-actions {
   opacity: 0;
   transform: translateY(-40px);
   transition: transform .5s ease, opacity .4s ease;
 }
-.hero h1 { transition-delay: .08s; }
-.hero-badges { transition-delay: .16s; }
-.hero-actions { transition-delay: .24s; }
+.hero-eyebrow { transition-delay: .08s; }
+.hero h1 { transition-delay: .16s; }
+.hero-lead { transition-delay: .24s; }
+.hero-actions { transition-delay: .32s; }
+body.preloader-done .hero-location,
 body.preloader-done .hero-eyebrow,
 body.preloader-done .hero h1,
-body.preloader-done .hero-badges,
+body.preloader-done .hero-lead,
 body.preloader-done .hero-actions {
   opacity: 1;
   transform: translateY(0);
 }
 
 @media (max-width: 720px) {
-  /* Auto-fit to the actual (visible) content -- no forced full-screen
-     floor. The desktop rule reserves a full screen's height even when
-     content (here: shorter, with the logo hidden below) doesn't need it,
-     which left a large dead gap above the bottom-aligned text and could
-     even push the total past the viewport on shorter phones, forcing a
-     scroll to reveal nothing but that empty space. Cancelling min-height
-     here means the section is exactly as tall as its content + padding --
-     never padded out with unused space, and if content is ever genuinely
-     taller than the screen the page still scrolls to show it (normal
-     document flow), just without any artificial floor inflating things. */
-  .hero {
-    min-height: 0;
-    align-items: flex-end;
-  }
-  .hero-inner {
-    /* Equal top/bottom padding for a balanced look (the previous 32px top /
-       118px bottom split looked lopsided). 70px matches .mobile-call-bar's
-       rendered height (same figure body's padding-bottom uses elsewhere)
-       so the CTA buttons still clear the fixed bar even if a scroll ever
-       lands hero's bottom edge flush with the viewport's. */
-    padding-top: 70px;
-    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
-  }
+  .hero { padding: 64px 0 56px; }
+  /* Text spans the full width on phones, so the side-weighted desktop fade
+     leaves copy over the bright part of the video -- darken evenly instead. */
+  .hero::after { background: linear-gradient(180deg, rgb(2 13 28 / 80%) 0%, rgb(2 13 28 / 68%) 100%); }
 }
 
 /* ===== Trust strip ===== */
@@ -807,6 +759,7 @@ body.preloader-done .hero-actions {
   top: 8px; left: 8px;
   /* transform: translateY(-50%); */
   z-index: 2;
+  pointer-events: none;
   display: inline-flex; align-items: center; justify-content: center;
   width: 52px; height: 52px; border-radius: 50%;
   background: var(--color-primary-100);
@@ -820,6 +773,8 @@ body.preloader-done .hero-actions {
 }
 .service-card-head h3 { margin: 0; font-size: 0.92rem; }
 .service-card-arrow {
+  position: relative;
+  z-index: 2;
   display: flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; flex-shrink: 0;
   border-radius: 50%; border: 1.5px solid var(--color-highlight-400);
@@ -829,7 +784,12 @@ body.preloader-done .hero-actions {
 }
 .service-card-arrow svg { width: 15px; height: 15px; }
 .service-card-arrow:hover { background: var(--color-accent-500); border-color: var(--color-accent-500); color: #1c1c1c; transform: translateX(2px); }
-.service-card-arrow::after { content: ""; position: absolute; inset: 0; }
+/* Full-card stretched link: a dedicated overlay anchor (direct child of
+   .service-card, added in the markup) makes the ENTIRE card clickable —
+   photo, icon, title and description — not just the small arrow button.
+   The arrow itself stays a real (but aria-hidden/decorative) link on top
+   of the overlay so it keeps its own hover animation. */
+.service-card-link { position: absolute; inset: 0; z-index: 1; }
 .service-card { cursor: pointer; }
 .service-card p { color: var(--color-body); font-size: 0.92rem; margin: 8px 0 0; }
 
@@ -1384,9 +1344,8 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
   .btn::before { transition: none; }
   .btn:hover::before { left: -60%; }
   .hero-video { display: none; }
-  .hero-sunburst::before { animation: none; }
   .dust-cloud { display: none; }
-  .hero-eyebrow, .hero h1, .hero-badges, .hero-actions { opacity: 1; transform: none; transition: none; }
+  .hero-location, .hero-eyebrow, .hero h1, .hero-lead, .hero-actions { opacity: 1; transform: none; transition: none; }
   .about-photo { transition: none; }
   .about-photo:hover, .about-photo:focus-visible { transform: none; }
   .testimonial-card { transition: none; }
@@ -1455,6 +1414,13 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
 .page-hero-media--grading-leveling { background-image: url('../assets/grading-leveling-banner.jpg'); background-position: 62% 55%; }
 @media (max-width: 720px) {
   .page-hero-media--grading-leveling { background-position: 75% 48%; }
+}
+
+/* Motor grader working a graveled residential street, sitting further
+   right and slightly higher in frame than the other grader photo above. */
+.page-hero-media--private-road-driveway { background-image: url('../assets/private-road-driveway-banner.jpg'); background-position: 72% 45%; }
+@media (max-width: 720px) {
+  .page-hero-media--private-road-driveway { background-position: 50% 15%; }
 }
 
 /* Current page marker inside the Services dropdown/accordion */
