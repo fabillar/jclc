@@ -1255,7 +1255,14 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
 }
 .btn-form-back:hover { background: var(--color-highlight-100); }
 .form-next-btn, .form-submit-btn { margin-left: auto; margin-top: 0; }
-.hidden-field { position: absolute; left: -9999px; }
+.hidden-field {
+  position: absolute; left: -9999px; top: auto;
+  width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none;
+}
+/* Cloudflare Turnstile: collapsed while it runs invisibly, opened only if a visible check is needed. */
+.turnstile-wrap { display: flex; justify-content: center; margin-top: 4px; }
+.turnstile-wrap:empty { display: none; }
+.contact-form.is-challenging .form-step-desc { display: none; }
 .form-note { font-size: 0.9rem; margin-top: 10px; min-height: 1.2em; }
 .form-note:empty { margin-top: 0; min-height: 0; }
 .form-note.success { color: #2f7d3c; }

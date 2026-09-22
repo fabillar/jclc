@@ -335,6 +335,11 @@
       if (backBtn) backBtn.hidden = index === 0;
       if (nextBtn) nextBtn.hidden = index === steps.length - 1;
       if (submitBtn) submitBtn.hidden = index !== steps.length - 1;
+      // Start the Turnstile check quietly as soon as the last step opens,
+      // so a token is normally ready by the time "Send Message" is pressed.
+      if (index === steps.length - 1 && typeof loadTurnstile === "function") {
+        loadTurnstile().catch(function () {});
+      }
     };
 
     var validateStep = function (index) {
@@ -396,6 +401,139 @@
       });
     }
 
+    // The server only accepts dates from yesterday to two years out; keep the
+    // date picker inside that window so people never hit a confusing error.
+    var dateInput = document.getElementById("estimate-date");
+    if (dateInput) {
+      var pad2 = function (n) { return (n < 10 ? "0" : "") + n; };
+      var isoDay = function (d) {
+        return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+      };
+      var todayDate = new Date();
+      var maxDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() + 700);
+      dateInput.min = isoDay(todayDate);
+      dateInput.max = isoDay(maxDate);
+    }
+
+    // --- Cloudflare Turnstile (spam protection) ------------------------
+    // Only the PUBLIC site key is used here; it is fetched from
+    // /api/turnstile-config (which reads the TURNSTILE_SITE_KEY env var). The
+    // secret key lives only in the serverless function that verifies the token.
+    // The widget is "interaction-only": invisible unless Cloudflare decides a
+    // visible check is needed.
+    var TURNSTILE_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    var TURNSTILE_WAIT_MS = 45000;
+    var tsBox = document.getElementById("turnstile-widget");
+    var ts = { widgetId: null, token: "", loading: null, failed: false, waiters: [] };
+
+    var tsFail = function (message) {
+      var err = new Error(message);
+      err.userMessage = message;
+      return err;
+    };
+    var tsSettle = function (token, err) {
+      var waiters = ts.waiters;
+      ts.waiters = [];
+      waiters.forEach(function (w) {
+        clearTimeout(w.timer);
+        if (err) w.reject(err); else w.resolve(token);
+      });
+    };
+    var setChallenging = function (on) {
+      form.classList.toggle("is-challenging", !!on);
+      if (on && sending) {
+        note.textContent = "Please complete the security check above to send your request.";
+        note.className = "form-note";
+      }
+    };
+
+    var loadTurnstileScript = function () {
+      return new Promise(function (resolve, reject) {
+        if (window.turnstile) return resolve();
+        var el = document.createElement("script");
+        el.src = TURNSTILE_SRC;
+        el.async = true;
+        el.defer = true;
+        el.onload = function () { resolve(); };
+        el.onerror = function () { el.remove(); reject(new Error("turnstile script")); };
+        document.head.appendChild(el);
+      });
+    };
+
+    var renderTurnstile = function (siteKey) {
+      ts.widgetId = window.turnstile.render(tsBox, {
+        sitekey: siteKey,
+        appearance: "interaction-only",
+        callback: function (token) {
+          ts.token = token;
+          ts.failed = false;
+          setChallenging(false);
+          tsSettle(token);
+        },
+        "expired-callback": function () { ts.token = ""; },
+        "timeout-callback": function () { ts.token = ""; },
+        "before-interactive-callback": function () { setChallenging(true); },
+        "after-interactive-callback": function () { setChallenging(false); },
+        "error-callback": function () {
+          ts.token = "";
+          ts.failed = true; // retried automatically on the next submit
+          setChallenging(false);
+          tsSettle("", tsFail(
+            "We couldn\u2019t complete the security check. Please refresh the page and try again, or call us at (912) 778-4126."
+          ));
+          return true;
+        }
+      });
+    };
+
+    var loadTurnstile = function () {
+      if (ts.loading) return ts.loading;
+      if (!tsBox) return Promise.reject(new Error("no widget container"));
+      ts.loading = fetch("/api/turnstile-config", { headers: { Accept: "application/json" } })
+        .then(function (res) {
+          return res.json().catch(function () { return {}; }).then(function (json) {
+            if (!res.ok || !json.siteKey) throw new Error("turnstile config");
+            return json.siteKey;
+          });
+        })
+        .then(function (siteKey) {
+          return loadTurnstileScript().then(function () { renderTurnstile(siteKey); });
+        })
+        .catch(function (err) {
+          ts.loading = null; // allow a retry on the next attempt
+          throw err;
+        });
+      return ts.loading;
+    };
+
+    // Resolves with a fresh Turnstile token (waiting for it if necessary).
+    var getTurnstileToken = function () {
+      return loadTurnstile().then(function () {
+        if (ts.token) return ts.token;
+        if (ts.failed) { ts.failed = false; resetTurnstile(); } // the earlier check errored: try again
+        return new Promise(function (resolve, reject) {
+          var waiter = { resolve: resolve, reject: reject };
+          waiter.timer = setTimeout(function () {
+            ts.waiters = ts.waiters.filter(function (w) { return w !== waiter; });
+            reject(tsFail("The security check timed out. Please try again."));
+          }, TURNSTILE_WAIT_MS);
+          ts.waiters.push(waiter);
+        });
+      }, function () {
+        throw tsFail(
+          "We couldn\u2019t load the security check. Please check your connection and try again, or call us at (912) 778-4126."
+        );
+      });
+    };
+
+    // Tokens are single-use: after every attempt, discard it and get a new one.
+    var resetTurnstile = function () {
+      ts.token = "";
+      if (ts.widgetId !== null && window.turnstile && window.turnstile.reset) {
+        try { window.turnstile.reset(ts.widgetId); } catch (e) { /* ignore */ }
+      }
+    };
+
     showStep(0);
 
     // --- Submission ----------------------------------------------------
@@ -452,36 +590,51 @@
         email: data.get("email") || "",
         phone: data.get("phone") || "",
         bestTime: data.get("best-time") || "",
-        botField: data.get("bot-field") || ""
+        website: data.get("website") || "" // honeypot: people never see or fill this
       };
 
       setSending(true);
 
-      fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
+      // Get a Turnstile token first; the server verifies it with Cloudflare
+      // before any email is sent.
+      if (!ts.token && form.classList.contains("is-challenging")) {
+        note.textContent = "Please complete the security check above to send your request.";
+        note.className = "form-note";
+      }
+      getTurnstileToken()
+        .then(function (token) {
+          note.className = "form-note";
+          note.textContent = "";
+          payload.turnstileToken = token;
+          return fetch("/api/send-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+        })
         .then(function (res) {
           return res.json().catch(function () { return {}; }).then(function (json) {
             return { ok: res.ok && json.ok === true, status: res.status, error: json.error };
           });
         })
         .then(function (result) {
+          resetTurnstile();
           setSending(false);
           if (result.ok) {
             showSuccess(payload.name);
-          } else if (result.status === 400 && result.error) {
-            // Validation message from the server (e.g. a bad email address).
+          } else if ([400, 403, 429, 503].indexOf(result.status) !== -1 && result.error) {
+            // A specific, safe-to-show message from the server (validation
+            // problem, failed security check, rate limit, ...).
             note.textContent = result.error;
             note.className = "form-note error";
           } else {
             throw new Error("Send failed");
           }
         })
-        .catch(function () {
+        .catch(function (err) {
+          resetTurnstile();
           setSending(false);
-          note.textContent =
+          note.textContent = (err && err.userMessage) ||
             "Sorry, we couldn\u2019t send your request. Please try again, or call us at (912) 778-4126.";
           note.className = "form-note error";
         });

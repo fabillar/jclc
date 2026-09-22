@@ -640,7 +640,10 @@
       </div>
 
       <form class="contact-form" id="contact-form" name="contact">
-        <p class="hidden-field" aria-hidden="true"><label>Don't fill this out: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+        <!-- Honeypot: invisible to people, tempting to bots. The server drops any submission where it is filled in. -->
+        <div class="hidden-field" aria-hidden="true">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        </div>
 
         <div class="form-progress" aria-hidden="true">
           <span class="form-progress-dot is-active" data-dot="1"></span>
@@ -691,6 +694,8 @@
             <label class="radio-option"><input type="radio" name="best-time" value="Afternoon" required><span>Afternoon</span></label>
             <label class="radio-option"><input type="radio" name="best-time" value="Evening" required><span>Evening</span></label>
           </div>
+          <!-- Cloudflare Turnstile (rendered by js/main.js; stays invisible unless Cloudflare needs a check) -->
+          <div class="turnstile-wrap" id="turnstile-widget"></div>
         </fieldset>
 
         <div class="form-nav">
