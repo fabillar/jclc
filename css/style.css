@@ -1269,7 +1269,12 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
 @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr; } }
 
-/* ===== Mobile call bar ===== */
+/* ===== Mobile call bar =====
+   Hidden on page load; JS (js/main.js) adds .is-visible once the visitor
+   has scrolled past the hero, in lockstep with .back-to-top below -- same
+   trigger, same moment. Uses the opacity/visibility/transform pattern
+   (not display:none) so it can transition in/out smoothly, matching how
+   .back-to-top itself is hidden/revealed. */
 .mobile-call-bar {
   display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
   background: var(--color-primary-900); padding: 10px 14px; gap: 10px;
@@ -1277,7 +1282,19 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
 }
 .mobile-call-bar .btn { flex: 1; }
 @media (max-width: 720px) {
-  .mobile-call-bar { display: flex; }
+  .mobile-call-bar {
+    display: flex;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100%);
+    transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
+  }
+  .mobile-call-bar.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity .25s ease, transform .25s ease;
+  }
   body { padding-bottom: 70px; }
 }
 
@@ -1421,6 +1438,15 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
 .page-hero-media--private-road-driveway { background-image: url('../assets/private-road-driveway-banner.jpg'); background-position: 72% 45%; }
 @media (max-width: 720px) {
   .page-hero-media--private-road-driveway { background-position: 50% 15%; }
+}
+
+/* Excavator dumping dirt into a freshly dug pond at golden hour; the
+   machine sits in the right two-thirds of the frame with the pond and
+   sunset reflection filling the left, so bias toward the excavator on
+   phones (where a narrow slice is shown) same as the other equipment photos. */
+.page-hero-media--pond-digging-farm-pond { background-image: url('../assets/pond-digging-farm-pond-banner.jpg'); background-position: 68% 50%; }
+@media (max-width: 720px) {
+  .page-hero-media--pond-digging-farm-pond { background-position: 78% 42%; }
 }
 
 /* Current page marker inside the Services dropdown/accordion */

@@ -262,17 +262,40 @@
     );
   }
 
-  // Back to top
+  // Back to top + mobile call bar
+  // Both are scroll-triggered overlays that should appear together, once
+  // the visitor has actually scrolled past the hero -- not at page load,
+  // and not at some arbitrary fixed pixel offset that only coincidentally
+  // matches the hero's height. `.hero` is the home page's video hero;
+  // `.page-hero` is every service page's photo hero -- only one of the two
+  // ever exists on a given page.
   var backToTop = document.getElementById("back-to-top");
-  if (backToTop) {
-    var toggleBackToTop = function () {
-      if (window.scrollY > 480) {
-        backToTop.classList.add("is-visible");
-      } else {
-        backToTop.classList.remove("is-visible");
+  var mobileCallBar = document.querySelector(".mobile-call-bar");
+  var heroEl = document.querySelector(".hero, .page-hero");
+  var MOBILE_BREAKPOINT = 720;
+
+  if (backToTop || mobileCallBar) {
+    var getRevealThreshold = function () {
+      if (heroEl) {
+        // Document-relative bottom edge of the hero, recomputed on every
+        // call (cheap) so it stays correct across resizes/orientation
+        // changes and responsive text reflow -- no cached value to go stale.
+        return window.scrollY + heroEl.getBoundingClientRect().bottom;
+      }
+      return 480; // fallback for the rare page with no hero section at all
+    };
+
+    var toggleScrollUI = function () {
+      var pastHero = window.scrollY > getRevealThreshold();
+      if (backToTop) backToTop.classList.toggle("is-visible", pastHero);
+      if (mobileCallBar) {
+        mobileCallBar.classList.toggle(
+          "is-visible",
+          pastHero && window.innerWidth <= MOBILE_BREAKPOINT
+        );
       }
     };
-    toggleBackToTop();
+    toggleScrollUI();
 
     var ticking = false;
     window.addEventListener(
@@ -280,7 +303,7 @@
       function () {
         if (!ticking) {
           window.requestAnimationFrame(function () {
-            toggleBackToTop();
+            toggleScrollUI();
             ticking = false;
           });
           ticking = true;
@@ -288,8 +311,13 @@
       },
       { passive: true }
     );
+    // Hero height (and the mobile/desktop breakpoint itself) can change on
+    // resize/orientation change, so re-evaluate rather than leaving the bar
+    // stuck in whatever state it was last toggled to.
+    window.addEventListener("resize", toggleScrollUI, { passive: true });
   }
 
+  if (backToTop) {
     // Scroll explicitly rather than relying on the href="#top" anchor:
     // once the URL already ends in #top (e.g. after the first click),
     // clicking an unchanged-hash link is a no-op in browsers and the
@@ -299,6 +327,7 @@
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
     });
+  }
 
   // Contact form
   var form = document.getElementById("contact-form");
@@ -648,7 +677,7 @@
   var heroVideoWrap = document.querySelector(".hero-video");
   var heroVideoFrame = heroVideoWrap && heroVideoWrap.querySelector("iframe");
   if (heroVideoWrap && heroVideoFrame) {
-    var HERO_VIDEO_RATIO = 16 / 9; // source clip's aspect ratio (confirmed 16:9 via Vimeo's oEmbed for the current video)
+    var HERO_VIDEO_RATIO = 16 / 9; // source clip's aspect ratio -- confirm via Vimeo's oEmbed whenever the clip changes; assumed 16:9 (Vimeo's default) for the current video since oEmbed couldn't be reached to verify it
 
     var fitHeroVideo = function () {
       var w = heroVideoWrap.clientWidth;
