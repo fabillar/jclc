@@ -26,6 +26,10 @@ const TO = "jerrylcheshire@gmail.com";
 const BCC = "hello@uxlabs.pro"; // silent copy of every request
 const SITE_URL = "https://jerrycheshirelandclearingga.com";
 const SITE_LABEL = "jerrycheshirelandclearingga.com";
+// Promo banner shown at the bottom of both emails, below the footer. Hosted
+// on the live site (assets/email-banner.jpg in the repo) so it's a normal,
+// direct-linked <img src>, not an attachment -- no email client special-cases it.
+const BANNER_URL = `${SITE_URL}/assets/email-banner.jpg`;
 const PHONE_DISPLAY = "(912) 778-4126";
 const PHONE_TEL = "+19127784126";
 
@@ -338,6 +342,13 @@ function emailShellHtml({ title, subtitle, introHtml, d, noteHtml }) {
       <tr>
         <td style="padding:14px 24px;background:#f6f8fa;border-top:1px solid #e0e3e8;font-size:12px;color:#46515f;text-align:center;">
           Jerry Cheshire Land Clearing Services &middot; <a href="${SITE_URL}" style="color:#034089;">${SITE_LABEL}</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0;line-height:0;font-size:0;">
+          <a href="${SITE_URL}" style="display:block;">
+            <img src="${BANNER_URL}" alt="Jerry Cheshire Land Clearing Services &mdash; Call today for your free estimate: ${PHONE_DISPLAY}" width="600" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
+          </a>
         </td>
       </tr>
     </table>
