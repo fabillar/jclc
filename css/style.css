@@ -1444,6 +1444,19 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
   .page-hero-media--site-preparation { background-position: 72% 60%; }
 }
 
+/* The dozer and framed house sit right-of-center in this photo, so bias
+   toward them on phones, same reasoning as the Site Preparation photo above. */
+.page-hero-media--house-building-pad { background-image: url('../assets/house-building-pad-banner.jpg'); background-position: 65% 50%; }
+@media (max-width: 720px) {
+  .page-hero-media--house-building-pad { background-position: 80% 42%; }
+}
+
+/* The motor grader sits right-of-center in this photo too; same phone-crop bias. */
+.page-hero-media--grading-leveling { background-image: url('../assets/grading-leveling-banner.jpg'); background-position: 62% 55%; }
+@media (max-width: 720px) {
+  .page-hero-media--grading-leveling { background-position: 75% 48%; }
+}
+
 /* Current page marker inside the Services dropdown/accordion */
 .submenu a[aria-current="page"] { color: var(--color-highlight-400); }
 @media (max-width: 900px) {
