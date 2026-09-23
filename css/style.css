@@ -1467,6 +1467,51 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
   .page-hero-media--trenching-services { background-position: 80% 50%; }
 }
 
+/* Dump truck hauling a full load past an excavator loading a stockpile, bright
+   daylight; dump truck sits right-of-center, which is the more relevant
+   subject for a "Dirt Work & Hauling" hero and reads clearly against the
+   dark-left/transparent-right overlay. */
+.page-hero-media--dirt-work-hauling { background-image: url('../assets/dirt-work-hauling-banner.jpg'); background-position: 68% 42%; }
+@media (max-width: 720px) {
+  .page-hero-media--dirt-work-hauling { background-position: 75% 20%; }
+}
+
+/* Excavator grapple pulling a large stump, with a mulcher and dump truck
+   working further back at left; the stump/grapple sit right-of-center,
+   which is the relevant subject for a "Tree & Stump Removal" hero and
+   reads clearly against the dark-left/transparent-right overlay. */
+.page-hero-media--tree-stump-removal { background-image: url('../assets/tree-stump-removal-banner.jpg'); background-position: 64% 45%; }
+@media (max-width: 720px) {
+  .page-hero-media--tree-stump-removal { background-position: 76% 58%; }
+}
+
+/* Excavator tearing into a building at a demolition site under a dramatic
+   sky, with a loaded dump truck and a second excavator further back at
+   left; the active excavator/building sit right-of-center, which is the
+   relevant subject for a "Demolition & Earthmoving" hero and reads clearly
+   against the dark-left/transparent-right overlay. */
+.page-hero-media--demolition-earthmoving { background-image: url('../assets/demolition-earthmoving-banner.jpg'); background-position: 66% 42%; }
+@media (max-width: 720px) {
+  .page-hero-media--demolition-earthmoving { background-position: 70% 60%; }
+}
+
+/* Excavator bucket dumping dirt onto a pile at golden-hour, dump truck and
+   loader working further back at left; the bucket/action sits right-of-
+   center, which is the relevant subject for an "Excavation Service" hero
+   and reads clearly against the dark-left/transparent-right overlay. */
+.page-hero-media--excavation-service { background-image: url('../assets/excavation-service-banner.jpg'); background-position: 68% 48%; }
+@media (max-width: 720px) {
+  .page-hero-media--excavation-service { background-position: 54% 50%; }
+}
+
+/* Dump truck pouring gravel at left, worker running a plate compactor on the
+   fresh gravel driveway in front of a house/garage at right; placeholder
+   position pending candidate-screenshot iteration. */
+.page-hero-media--gravel-driveway-installation { background-image: url('../assets/gravel-driveway-installation-banner.jpg'); background-position: 60% 45%; }
+@media (max-width: 720px) {
+  .page-hero-media--gravel-driveway-installation { background-position: 55% 55%; }
+}
+
 /* Current page marker inside the Services dropdown/accordion */
 .submenu a[aria-current="page"] { color: var(--color-highlight-400); }
 @media (max-width: 900px) {
