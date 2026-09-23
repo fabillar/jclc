@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.jerrycheshirelandclearing.com/sitemap.xml
+Sitemap: https://jerrycheshirelandclearingga.com/sitemap.xml
