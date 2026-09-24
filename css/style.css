@@ -1273,6 +1273,17 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
 .footer-legal { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin: 0; padding: 0; font-size: 0.85rem; }
 .footer-legal a { color: #a9bbd4; }
 .footer-legal a:hover { color: #fff; text-decoration: underline; }
+/* Trust badges row (between footer columns and copyright) */
+.footer-badges { padding: 28px 24px; border-bottom: 1px solid rgba(255,255,255,0.14); }
+.trust-badges { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.trust-badge {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-width: 200px; padding: 14px 22px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); border-radius: 12px;
+  color: #fff; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.2;
+}
+.trust-badge svg { flex: none; }
+@media (max-width: 560px) { .trust-badge { flex: 1 1 100%; } }
 @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr; } }
 
