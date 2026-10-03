@@ -1265,6 +1265,9 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
 .footer-grid h5 { color: #fff; font-family: var(--font-head); margin: 0 0 14px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; }
 .footer-grid ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: 0.92rem; }
 .footer-grid p { font-size: 0.92rem; margin-top: 14px; }
+.footer-social-link { display: inline-flex; align-items: center; gap: 8px; color: inherit; }
+.footer-social-link:hover { color: #fff; }
+.footer-social-link svg { flex: none; }
 .footer-bottom {
   padding: 20px 24px; text-align: center; font-size: 0.85rem; color: #a9bbd4;
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 28px;
@@ -1452,6 +1455,20 @@ fieldset.form-step.is-active { display: grid; gap: 6px; }
 .page-hero-media--site-preparation { background-image: url('../assets/site-preparation-banner.jpg'); }
 @media (max-width: 720px) {
   .page-hero-media--site-preparation { background-position: 72% 60%; }
+}
+
+/* The dozer sits left-of-center in this photo, so bias toward it on
+   phones, same reasoning as the other hero photos above. */
+.page-hero-media--brush-clearing { background-image: url('../assets/brush-clearing-banner.jpg'); background-position: 42% 50%; }
+@media (max-width: 720px) {
+  .page-hero-media--brush-clearing { background-position: 32% 55%; }
+}
+
+/* The excavator bucket pours dirt left-of-center in this photo, so bias
+   toward it on phones, same reasoning as the other hero photos above. */
+.page-hero-media--backfilling { background-image: url('../assets/backfilling-banner.jpg'); background-position: 45% 48%; }
+@media (max-width: 720px) {
+  .page-hero-media--backfilling { background-position: 35% 52%; }
 }
 
 /* The dozer and framed house sit right-of-center in this photo, so bias
